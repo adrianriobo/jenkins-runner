@@ -10,9 +10,10 @@ import (
 
 const (
 	configCmdName string = "config"
-	jenkinsUrl    string = "jenkins-url"
-	username      string = "username"
-	password      string = "password"
+
+	jenkinsUrl string = "jenkins-url"
+	username   string = "username"
+	password   string = "password"
 )
 
 func init() {

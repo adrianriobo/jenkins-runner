@@ -9,32 +9,32 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type JenkinsConfig struct {
+type Config struct {
 	URL      string `yaml:"url"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 }
 
 func CreateConfig(url, username, password string) error {
-	return saveConfig(&JenkinsConfig{
+	return saveConfig(&Config{
 		URL:      url,
 		Username: username,
 		Password: password})
 }
 
-func LoadConfig() (*JenkinsConfig, error) {
-	var config JenkinsConfig
+func LoadConfig() (*Config, error) {
+	var config Config
 	data, err := ioutil.ReadFile(getConfigFilePath())
 	if err != nil {
 		return nil, err
 	}
-	if err = yaml.Unmarshal(data, config); err != nil {
+	if err = yaml.Unmarshal(data, &config); err != nil {
 		return nil, err
 	}
 	return &config, nil
 }
 
-func saveConfig(config *JenkinsConfig) error {
+func saveConfig(config *Config) error {
 	if data, err := yaml.Marshal(config); err == nil {
 		if err = ioutil.WriteFile(getConfigFilePath(), data, 0644); err != nil {
 			return err

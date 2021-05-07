@@ -4,37 +4,42 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+
+	"github.com/adrianriobo/jkrunner/pkg/jenkins/client"
 )
 
 const (
+	jobBuildCmdName string = "build"
+
 	name       string = "name"
 	parameters string = "parameters"
+	wait       string = "wait"
 )
 
 func init() {
 	jobCmd.AddCommand(jobBuildCmd)
-	flagSet := pflag.NewFlagSet("build", pflag.ExitOnError)
+	flagSet := pflag.NewFlagSet(jobBuildCmdName, pflag.ExitOnError)
 	flagSet.StringP(name, "n", "", "name of the pipeline to be built")
 	flagSet.StringToStringP(parameters, "p", nil, "pipeline parameters to run the build")
+	flagSet.BoolP(wait, "w", false, "wait for build to finish")
 	jobBuildCmd.Flags().AddFlagSet(flagSet)
 }
 
 var jobBuildCmd = &cobra.Command{
-	Use:   "build",
-	Short: "build",
-	Long:  "build",
+	Use:   jobBuildCmdName,
+	Short: "build a job with parameters",
+	Long:  "build a job wiht parameters",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if err := viper.BindPFlags(cmd.Flags()); err != nil {
 			return err
 		}
-		// runStart()
-		return nil
+		return run()
 	},
 }
 
-// func runStart() {
-// 	jenkins.Build(
-// 		viper.GetString(name),
-// 		viper.GetStringMapString(parameters)
-// 	)
-// }
+func run() error {
+	return client.Build(
+		viper.GetString(name),
+		viper.GetStringMapString(parameters),
+		viper.GetBool(wait))
+}

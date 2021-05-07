@@ -2,22 +2,57 @@ package client
 
 import (
 	"context"
-
-	"github.com/bndr/gojenkins"
+	"time"
 
 	"github.com/adrianriobo/jkrunner/pkg/jenkins/config"
+	"github.com/adrianriobo/jkrunner/pkg/jkrunner"
+	"github.com/bndr/gojenkins"
 )
 
-var Jenkins *gojenkins.Jenkins
+type jenkinsClient struct {
+	jenkins *gojenkins.Jenkins
+	ctx     context.Context
+}
 
-func init() {
-	// var config *JenkinsConfig
+var client *jenkinsClient
+
+func Build(jobName string, params map[string]string, wait bool) error {
+	build, err := build(jobName, params)
+	if err != nil {
+		return err
+	}
+	if wait {
+		for build.IsRunning(client.ctx) {
+			time.Sleep(jkrunner.BuildWaitInterval)
+			if _, err = build.Poll(client.ctx); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func build(jobName string, params map[string]string) (*gojenkins.Build, error) {
+	if err := initalize(); err != nil {
+		return nil, err
+	}
+	queueid, err := client.jenkins.BuildJob(client.ctx, jobName, params)
+	if err != nil {
+		return nil, err
+	}
+	return client.jenkins.GetBuildFromQueueID(client.ctx, queueid)
+}
+
+func initalize() error {
 	config, err := config.LoadConfig()
 	if err != nil {
-		panic(err)
+		return err
 	}
-	Jenkins = gojenkins.CreateJenkins(nil, config.URL, config.Username, config.Password)
-	if _, err = Jenkins.Init(context.Background()); err != nil {
-		panic(err)
+	client = &jenkinsClient{
+		jenkins: gojenkins.CreateJenkins(nil, config.URL, config.Username, config.Password),
+		ctx:     context.Background()}
+	if _, err = client.jenkins.Init(client.ctx); err != nil {
+		return err
 	}
+	return nil
 }
