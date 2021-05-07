@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/adrianriobo/jkrunner/pkg/jkrunner"
 	"github.com/adrianriobo/jkrunner/pkg/logging"
 	"github.com/adrianriobo/jkrunner/pkg/util"
 	"github.com/spf13/cobra"
@@ -15,16 +16,11 @@ import (
 )
 
 const (
-	commandName      = "gojenkins"
-	descriptionShort = "jenkins cli"
-	descriptionLong  = "jenkins cli to interact with jenkins"
+	commandName      = "jkrunner"
+	descriptionShort = "jenkins runner to run jobs and get artifacts"
+	descriptionLong  = "jenkins runner with the only purpose to run jobs and get artifacts"
 
 	defaultErrorExitCode = 1
-)
-
-var (
-	baseDir = filepath.Join(util.GetHomeDir(), ".gojenkins")
-	logFile = "gojenkins.log"
 )
 
 var rootCmd = &cobra.Command{
@@ -43,7 +39,10 @@ var rootCmd = &cobra.Command{
 }
 
 func runPrerun(cmd *cobra.Command) error {
-	logging.InitLogrus(logging.LogLevel, baseDir, logFile)
+	logging.InitLogrus(
+		logging.LogLevel,
+		filepath.Join(util.GetHomeDir(), jkrunner.Home),
+		jkrunner.LogFileName)
 	return nil
 }
 

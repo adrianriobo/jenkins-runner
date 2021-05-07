@@ -12,14 +12,14 @@ const (
 )
 
 func init() {
-	rootCmd.AddCommand(buildCmd)
+	jobCmd.AddCommand(jobBuildCmd)
 	flagSet := pflag.NewFlagSet("build", pflag.ExitOnError)
-	flagSet.StringP(name, "n", "", "list of brokers acting on failover")
-	flagSet.StringToStringP(parameters, "p", nil, "parameters to run the build")
-	buildCmd.Flags().AddFlagSet(flagSet)
+	flagSet.StringP(name, "n", "", "name of the pipeline to be built")
+	flagSet.StringToStringP(parameters, "p", nil, "pipeline parameters to run the build")
+	jobBuildCmd.Flags().AddFlagSet(flagSet)
 }
 
-var buildCmd = &cobra.Command{
+var jobBuildCmd = &cobra.Command{
 	Use:   "build",
 	Short: "build",
 	Long:  "build",
