@@ -14,6 +14,7 @@ const (
 	name       string = "name"
 	parameters string = "parameters"
 	wait       string = "wait"
+	output     string = "output"
 )
 
 func init() {
@@ -22,6 +23,7 @@ func init() {
 	flagSet.StringP(name, "n", "", "name of the pipeline to be built")
 	flagSet.StringToStringP(parameters, "p", nil, "pipeline parameters to run the build")
 	flagSet.BoolP(wait, "w", false, "wait for build to finish")
+	flagSet.StringP(output, "o", "", "output path to download artifacts and console ouput for the job when done")
 	jobBuildCmd.Flags().AddFlagSet(flagSet)
 }
 
@@ -41,5 +43,7 @@ func run() error {
 	return client.Build(
 		viper.GetString(name),
 		viper.GetStringMapString(parameters),
-		viper.GetBool(wait))
+		viper.GetBool(wait),
+		viper.GetString(output),
+	)
 }

@@ -2,6 +2,8 @@ package client
 
 import (
 	"context"
+	"io/ioutil"
+	"path/filepath"
 	"time"
 
 	"github.com/adrianriobo/jkrunner/pkg/jenkins/config"
@@ -16,18 +18,38 @@ type jenkinsClient struct {
 
 var client *jenkinsClient
 
-func Build(jobName string, params map[string]string, wait bool) error {
+func Build(jobName string, params map[string]string, wait bool, output string) error {
 	build, err := build(jobName, params)
 	if err != nil {
 		return err
 	}
-	if wait {
+	// output implies wait for artifacts
+	if wait || output != "" {
 		for build.IsRunning(client.ctx) {
 			time.Sleep(jkrunner.BuildWaitInterval)
 			if _, err = build.Poll(client.ctx); err != nil {
 				return err
 			}
 		}
+	}
+	if output != "" {
+		if err = download(build, output); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func download(build *gojenkins.Build, outputPath string) error {
+	for _, artifact := range build.GetArtifacts() {
+		if _, err := artifact.SaveToDir(client.ctx, outputPath); err != nil {
+			return err
+		}
+	}
+
+	data := []byte(build.GetConsoleOutput(client.ctx))
+	if err := ioutil.WriteFile(filepath.Join(outputPath, jkrunner.ConsoleOutputFilename), data, 0644); err != nil {
+		return err
 	}
 	return nil
 }

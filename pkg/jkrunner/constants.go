@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	Home              string        = ".jkrunner"
-	LogFileName       string        = "jkrunner.log"
-	ConfigFileName    string        = "config.yaml"
-	BuildWaitInterval time.Duration = 5000 * time.Millisecond
+	Home                  string        = ".jkrunner"
+	LogFileName           string        = "jkrunner.log"
+	ConfigFileName        string        = "config.yaml"
+	BuildWaitInterval     time.Duration = 5000 * time.Millisecond
+	ConsoleOutputFilename string        = "output"
 )
