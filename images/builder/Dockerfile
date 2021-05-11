@@ -10,8 +10,7 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 LABEL MAINTAINER "Adrian Riobo" "<ariobolo@redhat.com>"
 
-WORKDIR /
-COPY --from=builder /workspace/out/jkrunner .
+COPY --from=builder /workspace/out/jkrunner /usr/local/bin/
 #USER 65532:65532
 
-ENTRYPOINT ["/jkrunner"]
+ENTRYPOINT ["jkrunner"]
