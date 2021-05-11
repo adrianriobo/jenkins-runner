@@ -2,7 +2,9 @@ package client
 
 import (
 	"context"
+	"crypto/tls"
 	"io/ioutil"
+	"net/http"
 	"path/filepath"
 	"time"
 
@@ -71,10 +73,18 @@ func initalize() error {
 		return err
 	}
 	client = &jenkinsClient{
-		jenkins: gojenkins.CreateJenkins(nil, config.URL, config.Username, config.Password),
+		jenkins: gojenkins.CreateJenkins(createHttpClient(), config.URL, config.Username, config.Password),
 		ctx:     context.Background()}
 	if _, err = client.jenkins.Init(client.ctx); err != nil {
 		return err
 	}
 	return nil
+}
+
+// TODO inject root cert for jenkins cert signerz
+func createHttpClient() *http.Client {
+	transportConfig := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	return &http.Client{Transport: transportConfig}
 }
